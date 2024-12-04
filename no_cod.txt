@@ -1,0 +1,99 @@
+answer = []
+    con = sqlite3.connect(r"C:\Users\Арсений Брегман\PycharmProjects\cars\cars2_0.sqlite")
+    kursor = con.cursor()
+
+    line = kursor.execute('''SELECT id_type FROM "order"''').fetchall()
+
+    con.commit()
+    con.close()
+
+    for i in range(len(line)):
+        line_1 = line[i][0].split(';')
+        result = 0
+        for y in line_1:
+            con = sqlite3.connect(r"C:\Users\Арсений Брегман\PycharmProjects\cars\cars2_0.sqlite")
+            kursor = con.cursor()
+
+            number = kursor.execute(f'''SELECT amount FROM "type" WHERE name_type = ?''', (y,)).fetchall()[0][0]
+
+            result += number
+
+            con.commit()
+            con.close()
+        answer.append(result)
+    answer = [(x,) for x in answer]
+    for k in range(len(answer)):
+        con = sqlite3.connect(r"C:\Users\Арсений Брегман\PycharmProjects\cars\cars2_0.sqlite")
+        kursor = con.cursor()
+
+        kursor.execute(f'''UPDATE "order"
+                            SET final_sum = {answer[k][0]}
+                            WHERE id_order = ?''', (k+1, ))
+
+        con.commit()
+        con.close()
+       line_type = kursor.execute('''SELECT id_type FROM "order";''').fetchall()
+    #line_id = kursor.execute(f'''SELECT id_client FROM client WHERE login = {Name}''').fetchall()[0][0]
+    con.close()
+
+    for i in range(len(line_type)):
+        line_1 = line_type[i][0].split(';')
+        result = 0
+        for y in line_1:
+            y = list(y).split('-')
+
+            con = sqlite3.connect("cars2_0.sqlite")
+            kursor = con.cursor()
+
+            #number = kursor.execute(f'''SELECT amount FROM order_type WHERE id_type''')
+
+            #kursor.execute(f'''UPDATE "order"
+            #                    INNER JOIN type_order ON "order".id_order = type_order.id_order
+            #                    INNER JOIN "type" ON "type".id_type = type_order.id_type
+            #                    SET "order".final_sum = "order".final_sum + "type".amount * type_order.amount''')
+
+            price = kursor.execute(f'''SELECT amount FROM "type" WHERE name_type = ?''', (y,)).fetchall()[0][0]
+            #number = kursor.execute(f'''SELECT ''')
+
+            result += price #* price
+
+            con.commit()
+            con.close()
+        answer.append(result)
+    answer = [(x,) for x in answer]
+    for k in range(len(answer)):
+        con = sqlite3.connect("cars2_0.sqlite")
+        kursor = con.cursor()
+
+        kursor.execute(f'''UPDATE "order"
+                            SET final_sum = final_sum + {answer[k][0]}
+                            WHERE id_order = ?''', (k+1, ))
+
+        con.commit()
+        con.close()
+
+
+
+con = sqlite3.connect("cars2_0.sqlite")
+    kursor = con.cursor()
+
+    k = ', '
+    kursor.execute(f'PRAGMA table_info({search[1]})')
+    column_names = [i[1] for i in kursor.fetchall()]
+    if reg:
+        line.append(3)
+        line = tuple(line)
+        kursor.execute(f'''INSERT OR REPLACE INTO client(login, name_client) VALUES
+                                        ({'?, ?'});''', line[:-1])
+        kursor.execute(f'''INSERT OR REPLACE INTO {search[1]} ({k.join(column_names)}) VALUES
+                            (?, ?, ?);''', line)
+    else:
+        line = tuple(line)
+        kursor.execute(f'''INSERT OR REPLACE INTO {search[1]} ({k.join(column_names[1:])}) VALUES
+                                    ({'?, ' * (len(column_names[1:]) - 1) + '?'});''', line)
+    if add:
+        kursor.execute(
+            f'''INSERT INTO users (login, passw, access_level)
+            VALUES ({who + str(randint(1, 5))}, {111}, {2 if who == 'worker' else 3})''')
+    con.commit()
+    con.close()
